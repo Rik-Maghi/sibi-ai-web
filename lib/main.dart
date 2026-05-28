@@ -11,13 +11,10 @@ List<CameraDescription>? cameras;
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Camera is only available on mobile/desktop, not on Web
-  if (!kIsWeb) {
-    try {
-      cameras = await availableCameras();
-    } catch (e) {
-      debugPrint("Failed to get cameras: $e");
-    }
+  try {
+    cameras = await availableCameras();
+  } catch (e) {
+    debugPrint("Failed to get cameras: $e");
   }
 
   runApp(const SibiApp());

@@ -3,12 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'services/interpreter_service.dart';
 import 'services/tts_service.dart';
-import 'screens/camera_screen.dart';
 import 'screens/dictionary_screen.dart';
-import 'screens/quiz_screen.dart';
 import 'screens/blackboard_screen.dart';
 import 'screens/settings_screen.dart';
 import 'screens/classification_screen.dart';
+import 'screens/camera_screen_web.dart'
+    if (dart.library.io) 'screens/camera_screen.dart';
+import 'screens/quiz_screen_web.dart'
+    if (dart.library.io) 'screens/quiz_screen.dart';
 
 class DashboardLayout extends StatefulWidget {
   final List<CameraDescription> cameras;
@@ -45,9 +47,8 @@ class _DashboardLayoutState extends State<DashboardLayout> {
   }
 
   Future<void> _initCamera() async {
-    // Camera is not supported on Web
-    if (kIsWeb) return;
     if (widget.cameras.isNotEmpty) {
+      await _cameraController?.dispose();
       _cameraController = CameraController(
         widget.cameras[_currentCameraIndex],
         ResolutionPreset.medium,
@@ -60,7 +61,7 @@ class _DashboardLayoutState extends State<DashboardLayout> {
   }
 
   Future<void> _switchCamera() async {
-    if (_isSwitchingCamera || widget.cameras.length < 2 || kIsWeb) return;
+    if (_isSwitchingCamera || widget.cameras.length < 2) return;
     
     setState(() {
       _isSwitchingCamera = true;
@@ -212,20 +213,16 @@ class _DashboardLayoutState extends State<DashboardLayout> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
-                color: kIsWeb
-                    ? Colors.orangeAccent.withValues(alpha: 0.15)
-                    : Colors.greenAccent.withValues(alpha: 0.12),
+                color: Colors.greenAccent.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(
-                  color: kIsWeb
-                      ? Colors.orangeAccent.withValues(alpha: 0.4)
-                      : Colors.greenAccent.withValues(alpha: 0.35),
+                  color: Colors.greenAccent.withValues(alpha: 0.35),
                 ),
               ),
               child: Text(
-                kIsWeb ? "Web Demo" : "Edge AI",
+                "Edge AI",
                 style: TextStyle(
-                  color: kIsWeb ? Colors.orangeAccent : Colors.greenAccent,
+                  color: Colors.greenAccent,
                   fontSize: 10,
                   fontWeight: FontWeight.w600,
                 ),
@@ -234,7 +231,7 @@ class _DashboardLayoutState extends State<DashboardLayout> {
           ],
         ),
         actions: [
-          if (!kIsWeb && widget.cameras.length > 1 && (_selectedIndex == 0 || _selectedIndex == 2))
+          if (widget.cameras.length > 1 && (_selectedIndex == 0 || _selectedIndex == 2))
             IconButton(
               icon: _isSwitchingCamera 
                   ? const SizedBox(

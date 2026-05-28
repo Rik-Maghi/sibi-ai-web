@@ -55,8 +55,6 @@ class _CameraScreenState extends State<CameraScreen> {
   }
 
   Future<void> _initLandmarker() async {
-    if (kIsWeb) return;
-
     try {
       _handLandmarker = HandLandmarkerPlugin.create(
         numHands: 2,
@@ -599,7 +597,7 @@ class _CameraScreenState extends State<CameraScreen> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           // Web Simulator Panel
-          if (kIsWeb) ...[
+          if (kIsWeb && widget.cameraController == null) ...[
             Container(
               padding: const EdgeInsets.all(16),
               margin: const EdgeInsets.only(bottom: 12),

@@ -72,7 +72,6 @@ class _QuizScreenState extends State<QuizScreen>
   }
 
   Future<void> _initLandmarker() async {
-    if (kIsWeb) return;
     try {
       _handLandmarker = HandLandmarkerPlugin.create(
         numHands: 2,
@@ -469,6 +468,14 @@ class _QuizScreenState extends State<QuizScreen>
   }
 
   Widget _buildCameraArea() {
+    final ctrl = widget.cameraController;
+    final previewSize = ctrl?.value.previewSize;
+    final absoluteImageSize = previewSize == null
+        ? const Size(1, 1)
+        : Size(previewSize.height, previewSize.width);
+    final isFrontCamera =
+        ctrl?.description.lensDirection == CameraLensDirection.front;
+
     return Container(
       decoration: BoxDecoration(
         color: Colors.black,
@@ -478,18 +485,18 @@ class _QuizScreenState extends State<QuizScreen>
       child: Stack(
         fit: StackFit.expand,
         children: [
-          if (widget.cameraController != null &&
-              widget.cameraController!.value.isInitialized) ...[
+          if (ctrl != null && ctrl.value.isInitialized) ...[
             ClipRRect(
               borderRadius: BorderRadius.circular(10),
               child: Center(
                 child: CameraPreview(
-                  widget.cameraController!,
+                  ctrl,
                   child: _isQuizActive
                       ? CustomPaint(
                           painter: HandSkeletonPainter(
                             handLandmarks: _handLandmarks,
-                            isFrontCamera: widget.cameraController!.description.lensDirection == CameraLensDirection.front,
+                            isFrontCamera: isFrontCamera,
+                            absoluteImageSize: absoluteImageSize,
                           ),
                         )
                       : null,
